@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SentinelAI – Settings</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-mark">
+        <span class="logo-diamond"></span>
+        <span class="logo-diamond inner"></span>
+      </div>
+      <div>
+        <h1 class="site-title">SENTINEL<span class="accent">AI</span></h1>
+        <p class="site-sub">Alert Configuration</p>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="/" class="nav-link">◀ Dashboard</a>
+    </nav>
+  </header>
+
+  <main class="main settings-main">
+
+    <div id="toast" class="toast" style="display:none"></div>
+
+    <!-- ── Status Banner ──────────────────────────────────────────────────── -->
+    <div class="settings-status-bar" id="statusBar">
+      <span id="statusIcon">◈</span>
+      <span id="statusText">Checking configuration...</span>
+    </div>
+
+    <!-- ── Emergency Contact ──────────────────────────────────────────────── -->
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <span class="metric-icon">◈</span>
+        <span class="metric-title">EMERGENCY CONTACT</span>
+        <span class="settings-desc">Who receives the alert</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputName">CONTACT NAME</label>
+        <input class="form-input" type="text" id="inputName"
+               placeholder="e.g. Sreelakshmi PS" />
+        <span class="form-hint">Used in the alert email greeting</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputEmail">
+          RECIPIENT EMAIL
+          <span class="required-dot">*</span>
+        </label>
+        <input class="form-input" type="email" id="inputEmail"
+               placeholder="e.g. contact@gmail.com" />
+        <span class="form-hint">Alert emails will be sent to this address</span>
+      </div>
+    </div>
+
+    <!-- ── Gmail Sender ───────────────────────────────────────────────────── -->
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <span class="metric-icon">◎</span>
+        <span class="metric-title">GMAIL SENDER <span class="tag-free">Free</span></span>
+        <span class="settings-desc">Account that sends the alert</span>
+      </div>
+
+      <div class="info-banner">
+        <div class="info-banner-icon">ℹ</div>
+        <div>
+          SentinelAI sends alerts from your Gmail using an
+          <strong>App Password</strong> — not your real password.
+          Takes 2 minutes to set up. Completely free.
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputGmailSender">
+          SENDER GMAIL ADDRESS
+          <span class="required-dot">*</span>
+        </label>
+        <input class="form-input" type="email" id="inputGmailSender"
+               placeholder="e.g. theerthapriyan12@gmail.com"
+               autocomplete="off" />
+        <span class="form-hint">The Gmail account that sends the emergency alert</span>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="inputGmailAppPass">
+          GMAIL APP PASSWORD
+          <span class="required-dot">*</span>
+        </label>
+        <div class="password-wrap">
+          <input class="form-input" type="password" id="inputGmailAppPass"
+                 placeholder="xxxx xxxx xxxx xxxx"
+                 autocomplete="new-password" />
+          <button class="btn-show-pass" onclick="togglePassword()" id="btnShowPass">SHOW</button>
+        </div>
+        <span class="form-hint">16-character app password from Google Account</span>
+      </div>
+
+      <!-- Setup guide -->
+      <div class="steps-card">
+        <div class="steps-title">◧ HOW TO GET YOUR APP PASSWORD — 2 MINUTES</div>
+        <div class="step">
+          <span class="step-num">1</span>
+          Go to <a class="link" href="https://myaccount.google.com/security" target="_blank">myaccount.google.com/security</a>
+        </div>
+        <div class="step">
+          <span class="step-num">2</span>
+          Enable <strong>2-Step Verification</strong> if not already on
+        </div>
+        <div class="step">
+          <span class="step-num">3</span>
+          Search <strong>"App passwords"</strong> in the Google Account search bar
+        </div>
+        <div class="step">
+          <span class="step-num">4</span>
+          Click <strong>Create</strong> → name it <em>SentinelAI</em> → click Create
+        </div>
+        <div class="step">
+          <span class="step-num">5</span>
+          Copy the 16-character password → paste it above
+        </div>
+      </div>
+    </div>
+
+    <!-- ── What happens when alert fires ─────────────────────────────────── -->
+    <div class="settings-card info-card">
+      <div class="settings-card-header">
+        <span class="metric-icon">⬇</span>
+        <span class="metric-title">WHAT HAPPENS ON EMERGENCY</span>
+      </div>
+      <div class="alert-flow">
+        <div class="flow-step">
+          <div class="flow-num">1</div>
+          <div class="flow-text">Fall detected + no movement for 10 seconds</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="flow-num">2</div>
+          <div class="flow-text"><strong>Instant email</strong> sent immediately to contact</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="flow-num">3</div>
+          <div class="flow-text">10-second <strong>video clip</strong> recorded (5s before + 5s after)</div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-step">
+          <div class="flow-num">4</div>
+          <div class="flow-text"><strong>Second email</strong> sent with video attached</div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn btn-start full-width" id="saveBtn" onclick="saveSettings()">
+      ✓ SAVE SETTINGS
+    </button>
+
+  </main>
+
+  <footer class="footer">SentinelAI Emergency Detection &mdash; Settings</footer>
+
+  <script>
+    // ── Load once on page open ─────────────────────────────────────────────────
+    window.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const res  = await fetch("/settings");
+        const data = await res.json();
+        document.getElementById("inputName").value         = data.name          || "";
+        document.getElementById("inputEmail").value        = data.email         || "";
+        document.getElementById("inputGmailSender").value  = data.gmail_sender  || "";
+        document.getElementById("inputGmailAppPass").value = data.gmail_apppass || "";
+        updateStatusBar(data);
+      } catch(e) {
+        showToast("Could not load saved settings.", "error");
+      }
+    });
+
+    // ── Status bar ────────────────────────────────────────────────────────────
+    function updateStatusBar(data) {
+      const bar  = document.getElementById("statusBar");
+      const icon = document.getElementById("statusIcon");
+      const text = document.getElementById("statusText");
+      const configured = data.email && data.gmail_sender && data.gmail_apppass;
+      if (configured) {
+        bar.className  = "settings-status-bar status-ok";
+        icon.textContent = "✓";
+        text.textContent = `Alert will send to ${data.email} — ready`;
+      } else {
+        const missing = [];
+        if (!data.email)         missing.push("Recipient Email");
+        if (!data.gmail_sender)  missing.push("Gmail Sender");
+        if (!data.gmail_apppass) missing.push("App Password");
+        bar.className    = "settings-status-bar status-warn";
+        icon.textContent = "⚠";
+        text.textContent = `Not configured — missing: ${missing.join(", ")}`;
+      }
+    }
+
+    // ── Save only on manual click ─────────────────────────────────────────────
+    async function saveSettings() {
+      const btn = document.getElementById("saveBtn");
+      btn.disabled    = true;
+      btn.textContent = "Saving...";
+
+      const payload = {
+        name:          document.getElementById("inputName").value.trim(),
+        email:         document.getElementById("inputEmail").value.trim(),
+        gmail_sender:  document.getElementById("inputGmailSender").value.trim(),
+        gmail_apppass: document.getElementById("inputGmailAppPass").value.trim(),
+      };
+
+      // Validate required fields
+      if (!payload.email || !payload.gmail_sender || !payload.gmail_apppass) {
+        showToast("⚠ Please fill in Recipient Email, Gmail Address, and App Password.", "error");
+        btn.disabled    = false;
+        btn.textContent = "✓ SAVE SETTINGS";
+        return;
+      }
+
+      try {
+        const res = await fetch("/settings", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json" },
+          body:    JSON.stringify(payload),
+        });
+        if (res.ok) {
+          showToast("✓ Settings saved — alerts are now active.", "success");
+          updateStatusBar(payload);
+        } else {
+          showToast("✗ Server error — settings not saved.", "error");
+        }
+      } catch(e) {
+        showToast("✗ Could not reach server.", "error");
+      } finally {
+        btn.disabled    = false;
+        btn.textContent = "✓ SAVE SETTINGS";
+      }
+    }
+
+    // ── Show/hide password ────────────────────────────────────────────────────
+    function togglePassword() {
+      const input = document.getElementById("inputGmailAppPass");
+      const btn   = document.getElementById("btnShowPass");
+      if (input.type === "password") {
+        input.type    = "text";
+        btn.textContent = "HIDE";
+      } else {
+        input.type    = "password";
+        btn.textContent = "SHOW";
+      }
+    }
+
+    // ── Toast ─────────────────────────────────────────────────────────────────
+    function showToast(msg, type) {
+      const t         = document.getElementById("toast");
+      t.textContent   = msg;
+      t.className     = `toast toast-${type}`;
+      t.style.display = "block";
+      setTimeout(() => t.style.display = "none", 4000);
+    }
+  </script>
+</body>
+</html>

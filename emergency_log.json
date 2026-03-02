@@ -1,0 +1,26 @@
+[
+  {
+    "timestamp": "2026-03-02 07:05:23",
+    "torso_angle": 27.6,
+    "fall_confidence": 0.23,
+    "risk_score": 0.23
+  },
+  {
+    "timestamp": "2026-03-02 09:09:55",
+    "torso_angle": 60.0,
+    "fall_confidence": 0.7,
+    "risk_score": 0.7
+  },
+  {
+    "timestamp": "2026-03-02 09:17:11",
+    "torso_angle": 61.4,
+    "fall_confidence": 0.7,
+    "risk_score": 0.7
+  },
+  {
+    "timestamp": "2026-03-02 09:40:27",
+    "torso_angle": 78.2,
+    "fall_confidence": 0.7,
+    "risk_score": 0.7
+  }
+]

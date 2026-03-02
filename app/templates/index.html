@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SentinelAI Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="scanline" aria-hidden="true"></div>
+
+  <!-- ── FULL SCREEN EMERGENCY OVERLAY ──────────────────────────────────────── -->
+  <div class="emergency-fullscreen" id="emergencyFullscreen" style="display:none">
+    <div class="emergency-fullscreen-inner">
+      <div class="ef-icon">⚠</div>
+      <div class="ef-title">EMERGENCY DETECTED</div>
+      <div class="ef-sub">NO MOVEMENT AFTER FALL</div>
+      <div class="ef-detail">Alert email dispatched · Recording saved</div>
+      <button class="btn btn-reset" onclick="resetSystem()">↺ RESET SYSTEM</button>
+    </div>
+  </div>
+
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-mark">
+        <span class="logo-diamond"></span>
+        <span class="logo-diamond inner"></span>
+      </div>
+      <div>
+        <h1 class="site-title">SENTINEL<span class="accent">AI</span></h1>
+        <p class="site-sub">Emergency Detection System v2.1</p>
+      </div>
+    </div>
+    <nav class="header-nav">
+      <a href="/settings-page" class="nav-link">⚙ Settings</a>
+      <div class="clock" id="clock">00:00:00</div>
+    </nav>
+  </header>
+
+  <main class="main">
+
+    <!-- ── Status Banner ──────────────────────────────────────────────────── -->
+    <section class="status-section">
+      <div class="status-box" id="statusBox">
+        <div class="status-pulse"></div>
+        <div class="status-content">
+          <span class="status-label">SYSTEM STATUS</span>
+          <span class="status-value" id="statusText">OFFLINE</span>
+        </div>
+        <div class="status-right">
+          <div class="status-icon" id="statusIcon">◉</div>
+          <div class="countdown-badge" id="countdownBadge" style="display:none">
+            <span id="countdownNum">10</span><span class="cd-s">s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recovery window cancel button — shown during RECOVERY_WINDOW -->
+      <div class="cancel-bar" id="cancelBar" style="display:none">
+        <span class="cancel-bar-text">⚠ Fall detected — no movement for <span id="cancelCount">10</span>s triggers alert</span>
+        <button class="btn btn-cancel" onclick="cancelEmergency()">✕ I'M OK — CANCEL</button>
+      </div>
+    </section>
+
+    <!-- ── Camera + Metrics ───────────────────────────────────────────────── -->
+    <section class="cam-metrics-row">
+
+      <div class="cam-panel" id="camPanel">
+        <div class="cam-header">
+          <span class="metric-title">◈ LIVE FEED</span>
+          <span class="cam-badge" id="camBadge">● OFFLINE</span>
+        </div>
+        <div class="cam-wrap">
+          <img id="videoFeed" src="/video_feed" alt="Live camera feed" />
+          <div class="cam-corner tl"></div>
+          <div class="cam-corner tr"></div>
+          <div class="cam-corner bl"></div>
+          <div class="cam-corner br"></div>
+        </div>
+        <div class="audio-strip">
+          <span class="audio-strip-label">◎ MIC</span>
+          <div class="audio-bar-track">
+            <div class="audio-bar-fill" id="audioBarFill"></div>
+          </div>
+          <span class="audio-strip-value" id="audioStripValue">CLEAR</span>
+        </div>
+      </div>
+
+      <div class="metrics-col">
+
+        <!-- Fall detection -->
+        <div class="metric-card" id="cardFall">
+          <div class="metric-header">
+            <span class="metric-icon">⬇</span>
+            <span class="metric-title">FALL DETECTION</span>
+          </div>
+          <div class="metric-value" id="fallStatus">—</div>
+          <div class="conf-row">
+            <span class="conf-label">Confidence</span>
+            <div class="conf-bar-track">
+              <div class="conf-bar-fill" id="confBar"></div>
+            </div>
+            <span class="conf-value" id="confValue">0%</span>
+          </div>
+          <div class="angle-readout">
+            Torso angle: <span id="angleReadout">0.0</span>°
+            <span class="angle-thresh">/ 55° threshold</span>
+          </div>
+          <div class="metric-sub">Multi-factor: angle + head drop + hip position</div>
+        </div>
+
+        <!-- Movement meter -->
+        <div class="metric-card" id="cardMovement">
+          <div class="metric-header">
+            <span class="metric-icon">◎</span>
+            <span class="metric-title">MOVEMENT METER</span>
+          </div>
+          <div class="metric-value" id="movementStatus">NORMAL</div>
+          <div class="metric-bar-wrap">
+            <div class="metric-bar" id="movementBar" style="width:0%;background:var(--safe)"></div>
+          </div>
+          <div class="metric-sub">Landmark delta — inactivity after fall triggers alert</div>
+        </div>
+
+        <!-- Risk score -->
+        <div class="metric-card" id="cardRisk">
+          <div class="metric-header">
+            <span class="metric-icon">◈</span>
+            <span class="metric-title">RISK SCORE</span>
+          </div>
+          <div class="risk-display">
+            <div class="risk-number" id="riskScore">0.00</div>
+            <div class="risk-gauge-wrap">
+              <div class="risk-gauge-bg">
+                <div class="risk-gauge-fill" id="riskGauge"></div>
+                <div class="risk-threshold-line" style="left:70%"></div>
+              </div>
+              <div class="risk-gauge-labels">
+                <span>0.0</span>
+                <span style="margin-left:65%">0.7 ⚠</span>
+                <span>1.0</span>
+              </div>
+            </div>
+          </div>
+          <div class="metric-sub">Fall confidence + audio boost</div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Controls ───────────────────────────────────────────────────────── -->
+    <section class="controls-section">
+      <button class="btn btn-start" id="btnStart" onclick="startMonitoring()">▶ START MONITORING</button>
+      <button class="btn btn-stop"  id="btnStop"  onclick="stopMonitoring()" disabled>■ STOP MONITORING</button>
+    </section>
+
+    <!-- ── Event Log ──────────────────────────────────────────────────────── -->
+    <section class="log-section">
+      <div class="log-header">
+        <span class="metric-title">◧ EVENT LOG</span>
+        <button class="btn-clear" onclick="clearLog()">CLEAR</button>
+      </div>
+      <div class="log-body" id="logBody">
+        <div class="log-entry log-info">[SYSTEM] SentinelAI v2 initialized. Press START MONITORING.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    SentinelAI Emergency Detection &mdash; v2.0 &mdash;
+    <span id="footerStatus">● OFFLINE</span>
+  </footer>
+
+  <script>
+    let prevState   = "OFFLINE";
+    let pollInterval = null;
+
+    // ── Clock ─────────────────────────────────────────────────────────────────
+    function updateClock() {
+      document.getElementById("clock").textContent = new Date().toTimeString().slice(0,8);
+    }
+    setInterval(updateClock, 1000); updateClock();
+
+    // ── Log ───────────────────────────────────────────────────────────────────
+    function addLog(msg, type="info") {
+      const lb  = document.getElementById("logBody");
+      const ts  = new Date().toTimeString().slice(0,8);
+      const div = document.createElement("div");
+      div.className   = `log-entry log-${type}`;
+      div.textContent = `[${ts}] ${msg}`;
+      lb.prepend(div);
+      if (lb.children.length > 60) lb.lastChild.remove();
+    }
+    function clearLog() { document.getElementById("logBody").innerHTML = ""; }
+
+    // ── Poll /status ──────────────────────────────────────────────────────────
+    async function pollStatus() {
+      try {
+        const res  = await fetch("/status");
+        const data = await res.json();
+        updateUI(data);
+      } catch(e) { updateOffline(); }
+    }
+
+    function updateUI(d) {
+      const { state, risk_score, fall, fall_confidence, audio,
+              countdown, running, body_angle, movement } = d;
+
+      // ── Status box ────────────────────────────────────────────────────────
+      const box = document.getElementById("statusBox");
+      document.getElementById("statusText").textContent = state.replace("_"," ");
+      box.className = "status-box state-" + state.toLowerCase().replace(/_/g,"-");
+
+      const icons = { SAFE:"◉", FALL_DETECTED:"⬇", EMERGENCY_CONFIRMED:"⬛" };
+      document.getElementById("statusIcon").textContent = icons[state] || "◉";
+
+      // Countdown badge in status box
+      const badge = document.getElementById("countdownBadge");
+      if (state === "RECOVERY_WINDOW" && countdown > 0) {
+        badge.style.display = "flex";
+        document.getElementById("countdownNum").textContent = countdown;
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Cancel bar — hide always (no recovery window)
+      document.getElementById("cancelBar").style.display = "none";
+
+      // Full-screen emergency
+      const ef = document.getElementById("emergencyFullscreen");
+      ef.style.display = state === "EMERGENCY_CONFIRMED" ? "flex" : "none";
+
+      // Camera badge
+      const cb = document.getElementById("camBadge");
+      cb.textContent = running ? "● LIVE" : "● OFFLINE";
+      cb.className   = "cam-badge" + (running ? " live" : "");
+
+      // Fall card
+      document.getElementById("fallStatus").textContent = fall ? "DETECTED" : "CLEAR";
+      document.getElementById("cardFall").className     = "metric-card" + (fall ? " active" : "");
+      const confPct = Math.round((fall_confidence || 0) * 100);
+      document.getElementById("confBar").style.width    = confPct + "%";
+      document.getElementById("confBar").style.background =
+        confPct >= 70 ? "var(--danger)" : confPct >= 40 ? "var(--warn)" : "var(--safe)";
+      document.getElementById("confValue").textContent  = confPct + "%";
+      if (body_angle !== undefined)
+        document.getElementById("angleReadout").textContent = body_angle.toFixed(1);
+
+      // Movement meter
+      const movPct = movement ? Math.min(Math.round(movement * 2000), 100) : 0;
+      const movBar = document.getElementById("movementBar");
+      movBar.style.width      = movPct + "%";
+      movBar.style.background = movPct > 20 ? "var(--safe)" : "var(--warn)";
+      document.getElementById("movementStatus").textContent =
+        state === "RECOVERY_WINDOW"
+          ? (movPct > 20 ? "MOVING" : "STILL ⚠")
+          : "NORMAL";
+
+      // Audio strip
+      const rms = d.rms_level || 0;
+      document.getElementById("audioBarFill").style.width   = Math.min(rms * 1000, 100) + "%";
+      document.getElementById("audioBarFill").className     = "audio-bar-fill" + (audio ? " active" : "");
+      document.getElementById("audioStripValue").textContent = audio ? "LOUD" : "CLEAR";
+      document.getElementById("audioStripValue").className   = "audio-strip-value" + (audio ? " danger" : "");
+
+      // Risk gauge
+      const pct = Math.round(risk_score * 100);
+      document.getElementById("riskScore").textContent = risk_score.toFixed(2);
+      document.getElementById("riskGauge").style.width = pct + "%";
+      document.getElementById("riskGauge").className   =
+        "risk-gauge-fill" + (risk_score >= 0.7 ? " danger" : risk_score > 0.3 ? " warning" : "");
+
+      // Footer
+      const fl = { SAFE:"● SAFE", FALL_DETECTED:"⬇ FALL DETECTED", EMERGENCY_CONFIRMED:"🚨 EMERGENCY" };
+      document.getElementById("footerStatus").textContent = fl[state] || state;
+
+      // Log state changes
+      if (state !== prevState) {
+        const types = { SAFE:"info", FALL_DETECTED:"warn", EMERGENCY_CONFIRMED:"danger" };
+        addLog(`State → ${state.replace(/_/g," ")} | Risk: ${risk_score.toFixed(2)}`, types[state] || "info");
+        if (state === "FALL_DETECTED")
+          addLog("⬇ Fall detected — sending alert now!", "warn");
+        if (state === "EMERGENCY_CONFIRMED")
+          addLog("🚨 EMERGENCY CONFIRMED — instant email sent! Video email follows shortly.", "danger");
+        if (state === "SAFE" && prevState !== "OFFLINE")
+          addLog("✓ System reset — monitoring resumed.", "info");
+        prevState = state;
+      }
+    }
+
+    function updateOffline() {
+      document.getElementById("statusText").textContent = "OFFLINE";
+      document.getElementById("statusBox").className   = "status-box state-offline";
+      document.getElementById("emergencyFullscreen").style.display = "none";
+    }
+
+    // ── Controls ──────────────────────────────────────────────────────────────
+    async function startMonitoring() {
+      try {
+        await fetch("/start", { method:"POST" });
+        document.getElementById("btnStart").disabled = true;
+        document.getElementById("btnStop").disabled  = false;
+        prevState = "OFFLINE";
+        addLog("Monitoring started — camera and mic active.", "info");
+        document.getElementById("videoFeed").src = "/video_feed?" + Date.now();
+        if (!pollInterval) pollInterval = setInterval(pollStatus, 1000);
+      } catch(e) { addLog("Failed to start: " + e.message, "danger"); }
+    }
+
+    async function stopMonitoring() {
+      try {
+        await fetch("/stop", { method:"POST" });
+        document.getElementById("btnStart").disabled = false;
+        document.getElementById("btnStop").disabled  = true;
+        clearInterval(pollInterval); pollInterval = null;
+        document.getElementById("emergencyFullscreen").style.display = "none";
+        document.getElementById("cancelBar").style.display = "none";
+        updateOffline();
+        addLog("Monitoring stopped.", "warn");
+      } catch(e) { addLog("Failed to stop: " + e.message, "danger"); }
+    }
+
+    async function cancelEmergency() {
+      addLog("✓ Cancelled by user — returning to SAFE.", "warn");
+      await fetch("/cancel", { method:"POST" });
+    }
+
+    async function resetSystem() {
+      document.getElementById("emergencyFullscreen").style.display = "none";
+      await fetch("/stop",  { method:"POST" });
+      setTimeout(() => fetch("/start", { method:"POST" }).then(() => {
+        document.getElementById("btnStart").disabled = true;
+        document.getElementById("btnStop").disabled  = false;
+        prevState = "OFFLINE";
+        addLog("System reset — monitoring restarted.", "info");
+      }), 600);
+    }
+
+    // Start polling
+    pollInterval = setInterval(pollStatus, 1000);
+  </script>
+</body>
+</html>

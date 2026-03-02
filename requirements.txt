@@ -1,2 +1,19 @@
-opencv-python
-mediapipe
+# SentinelAI – Python Dependencies
+# Install: pip install -r requirements.txt
+
+# Web framework
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+jinja2==3.1.4
+python-multipart==0.0.9
+
+# Computer vision
+opencv-python==4.9.0.80
+mediapipe==0.10.14
+
+# Audio
+sounddevice==0.4.7
+numpy==1.26.4
+
+# Utilities
+python-dotenv==1.0.1
